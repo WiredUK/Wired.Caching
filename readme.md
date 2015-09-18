@@ -4,7 +4,14 @@ This is a package to simplify caching in your .Net projects. It started as a sim
 
 ##Usage##
 
-1. Add a reference to this library (duh!)
+1. Add a reference to this library (duh!) by either:
+
+    a. Downloading this codebase, or, I recommend;
+
+    b. Use the [Nuget package](https://www.nuget.org/packages/Wired.Caching) by running this in the package manager console of your project:
+
+        Install-Package Wired.Caching
+
 2. Create an instance of the cache service:
 
         //This can go anywhere, or preferably be injected
