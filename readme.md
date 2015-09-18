@@ -1,6 +1,6 @@
 #Wired.Caching#
 
-This is a package to simplify caching in your .Net projects. It started as a simple function but has become useful enough for me to drop into a library of it's own. I will likely make a Nuget package of this too at some point.
+This is a package to simplify caching in your .Net projects. It started as a simple function but has become useful enough for me to drop into a library of it's own. 
 
 ##Usage##
 
