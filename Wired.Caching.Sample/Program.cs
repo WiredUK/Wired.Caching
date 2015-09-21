@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Wired.Caching.Sample
 {
@@ -36,13 +32,13 @@ namespace Wired.Caching.Sample
             var stopWatch = new System.Diagnostics.Stopwatch();
             stopWatch.Start();
 
-            var someObject = _cacheService.Get(
+            _cacheService.Get(
                 "LargeObjectKey",
                 () => GetObjectFromSomewhereSlowly(),
                 600);
 
             //Alternative syntax
-            //var someObject2 = _cacheService.Get(
+            //_cacheService.Get(
             //    "LargeObjectKey",
             //    GetObjectFromSomewhereSlowly,
             //    600);

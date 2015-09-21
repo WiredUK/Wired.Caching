@@ -10,6 +10,25 @@ namespace Wired.Caching
     {
         private static readonly object SyncObject = new object();
 
+        private readonly string _name;
+
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        public InMemoryCache()
+        {
+            
+        }
+
+        /// <summary>
+        /// Specift the name when creating the cache service
+        /// </summary>
+        /// <param name="name">The name of the cache</param>
+        public InMemoryCache(string name)
+        {
+            _name = name;
+        }
+
         /// <summary>
         /// Determines if an item is in the cache by key
         /// </summary>
@@ -17,7 +36,7 @@ namespace Wired.Caching
         /// <returns></returns>
         public bool IsInCache(string key)
         {
-            return MemoryCache.Default.Contains(key);
+            return GetCache().Contains(key);
         }
 
         /// <summary>
@@ -33,13 +52,15 @@ namespace Wired.Caching
             
             lock (SyncObject)
             {
-                var item = MemoryCache.Default.Get(key) as T;
+                var cache = GetCache();
+
+                var item = cache.Get(key) as T;
 
                 if (item != null) return item;
 
                 item = getItemDelegate();
 
-                MemoryCache.Default.Add(key, item, DateTime.Now.AddSeconds(duration));
+                cache.Add(key, item, DateTime.Now.AddSeconds(duration));
                 return item;
             }
         }
@@ -50,7 +71,18 @@ namespace Wired.Caching
         /// <param name="key">The key of the item in the cache</param>
         public void RemoveFromCache(string key)
         {
-            MemoryCache.Default.Remove(key);
+            GetCache().Remove(key);
+        }
+
+        /// <summary>
+        /// Internal method to get the correct cache
+        /// </summary>
+        /// <returns></returns>
+        private MemoryCache GetCache()
+        {
+            return string.IsNullOrEmpty(_name) ? 
+                MemoryCache.Default : 
+                new MemoryCache(_name);
         }
     }
 }
