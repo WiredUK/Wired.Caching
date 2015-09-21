@@ -33,7 +33,7 @@
 
 <p>a. Downloading this codebase, or, I recommend;</p>
 
-<p>b. Use the <a href="https://www.nuget.org/packages/Wired.Caching">Nuget package</a> by running this in the package manager console of your project:</p>
+<p>b. Use the <a href="https://www.nuget.org/packages/Wired.Caching">Nuget package</a> by using the Nuget Package Manager in Visual Studio or running this in the package manager console:</p>
 
 <pre><code>Install-Package Wired.Caching
 </code></pre>
@@ -48,14 +48,28 @@ var cacheService = new InMemoryCache();
 <li>
 <p>Replace code where you need something cached. For example this:</p>
 
-<pre><code>var zombies = context.People.Where(p =&gt; p.IsDead).ToList();
+<pre><code>var zombies = context.People
+    .Where(p =&gt; p.IsWalking &amp;&amp; p.IsDead)
+    .ToList();
 </code></pre>
 
-<p>Will become replaced with something like this:</p>
+<p>Would be replaced with something like this:</p>
 
 <pre><code>var zombies = cacheService.Get(
     "zombies",
-    () =&gt; context.People.Where(p =&gt; p.IsDead).ToList(),
+    () =&gt; context.People
+              .Where(p =&gt; p.IsWalking &amp;&amp; p.IsDead)
+              .ToList(),
+    600);
+</code></pre>
+
+<p>Or you can use the slightly shorter lambda syntax:</p>
+
+<pre><code>var zombies = cacheService.Get(
+    "zombies",
+    context.People
+        .Where(p =&gt; p.IsWalking &amp;&amp; p.IsDead)
+        .ToList,
     600);
 </code></pre>
 </li>
