@@ -8,7 +8,7 @@ This is a package to simplify caching in your .Net projects. It started as a sim
 
     a. Downloading this codebase, or, I recommend;
 
-    b. Use the [Nuget package](https://www.nuget.org/packages/Wired.Caching) by running this in the package manager console of your project:
+    b. Use the [Nuget package](https://www.nuget.org/packages/Wired.Caching) by using the Nuget Package Manager in Visual Studio or running this in the package manager console:
 
         Install-Package Wired.Caching
 
@@ -19,14 +19,28 @@ This is a package to simplify caching in your .Net projects. It started as a sim
 
 2. Replace code where you need something cached. For example this:
 
-        var zombies = context.People.Where(p => p.IsDead).ToList();
+        var zombies = context.People
+            .Where(p => p.IsWalking && p.IsDead)
+            .ToList();
 
-    Will become replaced with something like this:
+    Would be replaced with something like this:
 
         var zombies = cacheService.Get(
             "zombies",
-            () => context.People.Where(p => p.IsDead).ToList(),
+            () => context.People
+                      .Where(p => p.IsWalking && p.IsDead)
+                      .ToList(),
             600);
+
+    Or you can use the slightly shorter lambda syntax:
+
+        var zombies = cacheService.Get(
+            "zombies",
+            context.People
+                .Where(p => p.IsWalking && p.IsDead)
+                .ToList,
+            600);
+
 
 ##Caveat##
 

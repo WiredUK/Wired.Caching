@@ -2,6 +2,9 @@
 
 namespace Wired.Caching
 {
+    /// <summary>
+    /// Interface to a cache service, useful for injecting a cache into your app
+    /// </summary>
     public interface ICacheService
     {
         /// <summary>
