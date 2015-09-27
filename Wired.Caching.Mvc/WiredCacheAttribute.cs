@@ -7,6 +7,9 @@ using System.Web.Mvc;
 
 namespace Wired.Caching.Mvc
 {
+    /// <summary>
+    /// Apply this to your MVC action method to provide seamless caching.
+    /// </summary>
     public class WiredCacheAttribute : ActionFilterAttribute
     {
         private const string CachePrefix = "Wired.Caching.Mvc.Cache";
@@ -16,6 +19,10 @@ namespace Wired.Caching.Mvc
         private readonly int _duration;
         private bool _foundInCache;
 
+        /// <summary>
+        /// Default constructor to provide the duration for caching.
+        /// </summary>
+        /// <param name="duration">The amount of seconds to cache your data</param>
         public WiredCacheAttribute(int duration)
         {
             _duration = duration;
@@ -35,7 +42,11 @@ namespace Wired.Caching.Mvc
         private string Controller { get; set; }
         private string Action { get; set; }
 
- 
+        /// <summary>
+        /// This method is an implementation of System.Web.Mvc.IActionFilter.OnActionExecuting(System.Web.Mvc.ActionExecutingContext)
+        /// and supports the ASP.NET MVC infrastructure. It is not intended to be used directly from your code.
+        /// </summary>
+        /// <param name="filterContext">The filter context</param>
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             Controller = filterContext.ActionDescriptor.ControllerDescriptor.ControllerName;
@@ -58,6 +69,11 @@ namespace Wired.Caching.Mvc
             }
         }
 
+        /// <summary>
+        /// This method is an implementation of System.Web.Mvc.IActionFilter.OnActionExecuted(System.Web.Mvc.ActionExecutedContext)
+        /// and supports the ASP.NET MVC infrastructure. It is not intended to be used directly from your code.
+        /// </summary>
+        /// <param name="filterContext">The filter context</param>
         public override void OnActionExecuted(ActionExecutedContext filterContext)
         {
             if (!_foundInCache)
