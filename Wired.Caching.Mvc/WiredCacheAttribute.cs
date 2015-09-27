@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Web;
 using System.Web.Mvc;
 
 namespace Wired.Caching.Mvc
@@ -10,6 +11,7 @@ namespace Wired.Caching.Mvc
     {
         private const string CachePrefix = "Wired.Caching.Mvc.Cache";
         private const string KeyOnAllParameters = "*";
+        private const string UserNameParameter = "wcUserName";
 
         private readonly int _duration;
         private bool _foundInCache;
@@ -24,35 +26,16 @@ namespace Wired.Caching.Mvc
         /// </summary>
         public string KeyOn { get; set; }
 
+        /// <summary>
+        /// Flag to set whether the cache is different per user
+        /// </summary>
+        public bool KeyOnUser { get; set; }
+
         private IDictionary<string, object> ActionParameters { get; set; }
         private string Controller { get; set; }
         private string Action { get; set; }
 
-        private string GenerateKey
-        {
-            get
-            {
-                var keyBuilder = new StringBuilder();
-                keyBuilder.AppendFormat("{0}:{1}:{2}", CachePrefix, Controller, Action);
-
-                if (string.IsNullOrEmpty(KeyOn)) return keyBuilder.ToString();
-
-                var keyParameters = KeyOn.Split(',').Select(s => s.Trim()).ToArray();
-
-                //Order the parameters and filter the ones we are going to use
-                var orderedParameters = ActionParameters
-                    .OrderBy(k => k.Key, StringComparer.OrdinalIgnoreCase)
-                    .Where(p => KeyOn == KeyOnAllParameters || keyParameters.Contains(p.Key));
-
-                foreach (var item in orderedParameters)
-                {
-                    keyBuilder.AppendFormat(":{0}={1}", item.Key, item.Value);
-                }
-
-                return keyBuilder.ToString();
-            }
-        }
-
+ 
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             Controller = filterContext.ActionDescriptor.ControllerDescriptor.ControllerName;
@@ -85,10 +68,42 @@ namespace Wired.Caching.Mvc
             base.OnActionExecuted(filterContext);
         }
 
+       private string GenerateKey
+        {
+            get
+            {
+                var keyBuilder = new StringBuilder();
+                keyBuilder.AppendFormat("{0}:{1}:{2}", CachePrefix, Controller, Action);
+
+                if (KeyOnUser)
+                {
+                    var name = HttpContext.Current?.User?.Identity?.Name;
+
+                    if (string.IsNullOrEmpty(name))
+                    {
+                        keyBuilder.AppendFormat(":{0}:{1}", UserNameParameter, name);
+                    }
+                }
+
+                if (string.IsNullOrEmpty(KeyOn)) return keyBuilder.ToString();
+
+                var keyParameters = KeyOn.Split(',').Select(s => s.Trim()).ToArray();
+
+                //Order the parameters and filter the ones we are going to use
+                var orderedParameters = ActionParameters
+                    .OrderBy(k => k.Key, StringComparer.OrdinalIgnoreCase)
+                    .Where(p => KeyOn == KeyOnAllParameters || keyParameters.Contains(p.Key));
+
+                foreach (var item in orderedParameters)
+                {
+                    keyBuilder.AppendFormat(":{0}={1}", item.Key, item.Value);
+                }
+
+                return keyBuilder.ToString();
+            }
+        }
 
     }
-
-
 
 }
 
