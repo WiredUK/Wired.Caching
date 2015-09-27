@@ -7,8 +7,8 @@
     <ProjectGuid>{58F0C8F6-8FBC-4763-BF11-C3B10468AA7E}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Wired.Caching.Sample</RootNamespace>
-    <AssemblyName>Wired.Caching.Sample</AssemblyName>
+    <RootNamespace>Wired.Caching.Sample.BasicConsole</RootNamespace>
+    <AssemblyName>Wired.Caching.Sample.BasicConsole</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

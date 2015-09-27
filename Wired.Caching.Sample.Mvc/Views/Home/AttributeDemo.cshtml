@@ -1,0 +1,33 @@
+﻿@{
+    ViewBag.Title = "Demo Page";
+}
+
+<div class="jumbotron">
+    <h1>Wired.Caching Mvc Demo</h1>
+    <p class="lead">A brief demonstration on how to use caching in an MVC project</p>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <h2>Site Content Below:</h2>
+        <div>
+            <textarea id="site-content">@ViewBag.SiteContent</textarea>
+        </div>
+    </div>
+</div>
+
+All of these links will be cached:
+
+<ul>
+    <li>@Html.ActionLink("Attribute Demo 1", "AttributeDemo2", new {id = "id1", someOtherParameter = "sop1"})</li>
+    <li>@Html.ActionLink("Attribute Demo 2", "AttributeDemo2", new {id = "id1", someOtherParameter = "sop2"})</li>
+    <li>@Html.ActionLink("Attribute Demo 3", "AttributeDemo2", new {id = "id1", someOtherParameter = "sop3"})</li>
+</ul>
+
+All of these links will not be cached:
+
+<ul>
+    <li>@Html.ActionLink("Attribute Demo 4", "AttributeDemo2", new { id = "id2", someOtherParameter = "sop1" })</li>
+    <li>@Html.ActionLink("Attribute Demo 5", "AttributeDemo2", new { id = "id3", someOtherParameter = "sop1" })</li>
+    <li>@Html.ActionLink("Attribute Demo 6", "AttributeDemo2", new { id = "id4", someOtherParameter = "sop1" })</li>
+</ul>

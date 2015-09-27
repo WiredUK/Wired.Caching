@@ -10,25 +10,6 @@ namespace Wired.Caching
     {
         private static readonly object SyncObject = new object();
 
-        private readonly string _name;
-
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        public InMemoryCache()
-        {
-            
-        }
-
-        /// <summary>
-        /// Specift the name when creating the cache service
-        /// </summary>
-        /// <param name="name">The name of the cache</param>
-        public InMemoryCache(string name)
-        {
-            _name = name;
-        }
-
         /// <summary>
         /// Determines if an item is in the cache by key
         /// </summary>
@@ -49,7 +30,6 @@ namespace Wired.Caching
         /// <returns>The cached item or result of the callback if item is not in the cache</returns>
         public T Get<T>(string key, Func<T> getItemDelegate, int duration) where T : class
         {
-            
             lock (SyncObject)
             {
                 var cache = GetCache();
@@ -63,6 +43,34 @@ namespace Wired.Caching
                 cache.Add(key, item, DateTime.Now.AddSeconds(duration));
                 return item;
             }
+        }
+        
+        /// <summary>
+        /// Reads an item from the cache, does not create a new item.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The key of the item in the cache</param>
+        /// <returns>The cached item</returns>
+        public T ReadFromCache<T>(string key) where T : class
+        {
+            lock (SyncObject)
+            {
+                var cache = GetCache();
+                return cache.Get(key) as T;
+            }
+        }
+
+        /// <summary>
+        /// Inserts an item into the cache
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The key of the item in the cache</param>
+        /// <param name="item">The item to cache</param>
+        /// <param name="duration">The duration in seconds to store the item in the cache</param>
+        public void InsertIntoCache<T>(string key, T item, int duration) where T : class
+        {
+            var cache = GetCache();
+            cache.Add(key, item, DateTime.Now.AddSeconds(duration));
         }
 
         /// <summary>
@@ -78,11 +86,9 @@ namespace Wired.Caching
         /// Internal method to get the correct cache
         /// </summary>
         /// <returns></returns>
-        private MemoryCache GetCache()
+        private static MemoryCache GetCache()
         {
-            return string.IsNullOrEmpty(_name) ? 
-                MemoryCache.Default : 
-                new MemoryCache(_name);
+            return MemoryCache.Default;
         }
     }
 }

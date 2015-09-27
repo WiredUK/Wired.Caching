@@ -25,6 +25,23 @@ namespace Wired.Caching
         T Get<T>(string key, Func<T> getItemDelegate, int duration) where T : class;
 
         /// <summary>
+        /// Reads an item from the cache, does not create a new item.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The key of the item in the cache</param>
+        /// <returns>The cached item</returns>
+        T ReadFromCache<T>(string key) where T : class;
+
+        /// <summary>
+        /// Inserts an item into the cache
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The key of the item in the cache</param>
+        /// <param name="item">The item to cache</param>
+        /// <param name="duration">The duration in seconds to store the item in the cache</param>
+        void InsertIntoCache<T>(string key, T item, int duration) where T : class;
+
+        /// <summary>
         /// Removes an item from the cache
         /// </summary>
         /// <param name="key">The key of the item in the cache</param>
