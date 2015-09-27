@@ -7,7 +7,7 @@
     <authors>$author$</authors>
     <owners>$author$</owners>
     <iconUrl>http://david.glass/w-logo.png</iconUrl>
-    <licenseUrl>https://github.com/WiredUK/Wired.Caching.Mvc/blob/master/LICENSE</licenseUrl>
+    <licenseUrl>https://github.com/WiredUK/Wired.Caching/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://wireduk.github.io/Wired.Caching.Mvc</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>$description$</description>

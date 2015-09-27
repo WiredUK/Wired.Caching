@@ -95,7 +95,7 @@ namespace Wired.Caching.Mvc
                 {
                     var name = HttpContext.Current?.User?.Identity?.Name;
 
-                    if (string.IsNullOrEmpty(name))
+                    if (!string.IsNullOrEmpty(name))
                     {
                         keyBuilder.AppendFormat(":{0}:{1}", UserNameParameter, name);
                     }

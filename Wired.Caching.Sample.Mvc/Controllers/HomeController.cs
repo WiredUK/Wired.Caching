@@ -48,7 +48,7 @@ namespace Wired.Caching.Sample.Mvc.Controllers
             return View("AttributeDemo");
         }
 
-        private string GetDataFromWebsite()
+        private static string GetDataFromWebsite()
         {
             var client = new HttpClient();
 
