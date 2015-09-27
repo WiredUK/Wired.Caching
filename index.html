@@ -125,6 +125,18 @@ public ActionResult Index()
 }
 </code></pre>
 
+<p>But typing <code>KeyOnUser = true</code> every time is boring right? Wouldn't it be nice if you could set it once somewhere and forget? Easy! Just configure in your <code>web.config</code>. First add in a new config section:</p>
+
+<pre><code>&lt;configSections&gt;
+    &lt;section name="wiredCaching" type="Wired.Caching.Mvc.CachingConfigSection,Wired.Caching.Mvc"/&gt;
+&lt;/configSections&gt;
+</code></pre>
+
+<p>Then somewhere else in your config, add this:</p>
+
+<pre><code>&lt;wiredCaching alwaysKeyOnUser="true" /&gt;
+</code></pre>
+
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/WiredUK/Wired.Caching">Wired.Caching</a> is maintained by <a href="https://github.com/WiredUK">WiredUK</a>.</span>
 
