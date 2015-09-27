@@ -80,6 +80,51 @@ var cacheService = new InMemoryCache();
 
 <p>There's always a <a href="http://shouldiblamecaching.com/">catch</a> right? The main thing you need to be concerned about is when caching something that uses deferred execution. A database context is a good example here, hence why my example ends with <code>ToList()</code>. That materialises the query so you are caching the results and not an <code>IQueryable</code> interface. If you forget to do that, you will probably end up with errors telling you that your context has gone away or disconnected.</p>
 
+<h1>
+<a id="wiredcachingmvc" class="anchor" href="#wiredcachingmvc" aria-hidden="true"><span class="octicon octicon-link"></span></a>Wired.Caching.Mvc</h1>
+
+<p>So now you want to use caching in your MVC project? Use this package to simplify that even further. Have you ever wanted to cache the entire return from an Action method? Well now you can by adding a simple attribute.</p>
+
+<h2>
+<a id="usage-1" class="anchor" href="#usage-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>So here is an example (but very boring) action:</p>
+
+<pre><code>public ActionResult Index()
+{ 
+    return View();
+}
+</code></pre>
+
+<p>So how do we make it cached? Just add the <code>WiredCache</code> attribute, like this:</p>
+
+<pre><code>[WiredCache(600)]
+public ActionResult Index()
+{ 
+    return View();
+}
+</code></pre>
+
+<p>And now that action will not be called more than once every 600 seconds. </p>
+
+<p>Can we get a bit more clever? Sure, what happens if your action has parameters and each variation of parameter has a different output that you want to cache? Simple, just use the <code>KeyOn</code> property. Either specify a comma seperated list of parameter names or use <code>*</code> to use them all. So lets say you have an action that has a single parameter that you don't care about, just do this:</p>
+
+<pre><code>[WiredCache(600, KeyOn = "id")]
+public ActionResult GetProduct(int id, string ignoreThisParameter)
+{ 
+    return View();
+}
+</code></pre>
+
+<p>Now what happens when inside your action method, the output is different depending on the user that is logged in, perhaps your <code>Index</code> action displays the users name and some specific content to them? That's easy too, just use the <code>KeyOnUser</code> property, like this:</p>
+
+<pre><code>[WiredCache(600, KeyOnUser = true)]
+public ActionResult Index()
+{ 
+    return View();
+}
+</code></pre>
+
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/WiredUK/Wired.Caching">Wired.Caching</a> is maintained by <a href="https://github.com/WiredUK">WiredUK</a>.</span>
 
