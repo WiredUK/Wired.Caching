@@ -13,7 +13,7 @@
     <description>$description$</description>
     <releaseNotes>Initial release.</releaseNotes>
     <copyright>Copyright 2015</copyright>
-    <tags>Caching .Net MVC</tags>
+    <tags>Caching cache .Net MVC</tags>
     <dependencies>
         <dependency id="Wired.Caching" version="1.1" />    
     </dependencies>

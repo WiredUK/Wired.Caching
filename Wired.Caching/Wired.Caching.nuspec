@@ -13,6 +13,6 @@
     <description>$description$</description>
     <releaseNotes>Some minor additional functionality, mainly to support the Wired.Caching.Mvc package.</releaseNotes>
     <copyright>Copyright 2015</copyright>
-    <tags>Caching .Net MVC</tags>
+    <tags>Caching cache .Net MVC</tags>
   </metadata>
 </package>
