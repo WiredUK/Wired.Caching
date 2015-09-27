@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Web;
@@ -19,6 +20,8 @@ namespace Wired.Caching.Mvc
         private readonly int _duration;
         private bool _foundInCache;
 
+        private readonly CachingConfigSection _configuration;
+
         /// <summary>
         /// Default constructor to provide the duration for caching.
         /// </summary>
@@ -26,6 +29,7 @@ namespace Wired.Caching.Mvc
         public WiredCacheAttribute(int duration)
         {
             _duration = duration;
+            _configuration = ConfigurationManager.GetSection("wiredCaching") as CachingConfigSection;
         }
 
         /// <summary>
@@ -84,20 +88,22 @@ namespace Wired.Caching.Mvc
             base.OnActionExecuted(filterContext);
         }
 
-       private string GenerateKey
+        private string GenerateKey
         {
             get
             {
                 var keyBuilder = new StringBuilder();
-                keyBuilder.AppendFormat("{0}:{1}:{2}", CachePrefix, Controller, Action);
+                keyBuilder.Append($"{CachePrefix}:{Controller}:{Action}");
 
-                if (KeyOnUser)
+                var alwaysKeyOnUser = _configuration?.AlwaysKeyOnUser;
+
+                if (KeyOnUser || alwaysKeyOnUser.GetValueOrDefault())
                 {
                     var name = HttpContext.Current?.User?.Identity?.Name;
 
                     if (!string.IsNullOrEmpty(name))
                     {
-                        keyBuilder.AppendFormat(":{0}:{1}", UserNameParameter, name);
+                        keyBuilder.Append($":{UserNameParameter}:{name}");
                     }
                 }
 
@@ -112,7 +118,7 @@ namespace Wired.Caching.Mvc
 
                 foreach (var item in orderedParameters)
                 {
-                    keyBuilder.AppendFormat(":{0}={1}", item.Key, item.Value);
+                    keyBuilder.Append($":{item.Key}={item.Value}");
                 }
 
                 return keyBuilder.ToString();
