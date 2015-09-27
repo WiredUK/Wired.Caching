@@ -45,3 +45,42 @@ This is a package to simplify caching in your .Net projects. It started as a sim
 ##Caveat##
 
 There's always a [catch](http://shouldiblamecaching.com/) right? The main thing you need to be concerned about is when caching something that uses deferred execution. A database context is a good example here, hence why my example ends with `ToList()`. That materialises the query so you are caching the results and not an `IQueryable` interface. If you forget to do that, you will probably end up with errors telling you that your context has gone away or disconnected.
+
+#Wired.Caching.Mvc#
+
+So now you want to use caching in your MVC project? Use this package to simplify that even further. Have you ever wanted to cache the entire return from an Action method? Well now you can by adding a simple attribute.
+
+##Usage##
+
+So here is an example (but very boring) action:
+
+	public ActionResult Index()
+	{ 
+		return View();
+	}
+
+So how do we make it cached? Just add the `WiredCache` attribute, like this:
+
+    [WiredCache(600)]
+	public ActionResult Index()
+	{ 
+		return View();
+	}
+
+And now that action will not be called more than once every 600 seconds. 
+
+Can we get a bit more clever? Sure, what happens if your action has parameters and each variation of parameter has a different output that you want to cache? Simple, just use the `KeyOn` property. Either specify a comma seperated list of parameter names or use `*` to use them all. So lets say you have an action that has a single parameter that you don't care about, just do this:
+
+    [WiredCache(600, KeyOn = "id")]
+	public ActionResult GetProduct(int id, string ignoreThisParameter)
+	{ 
+		return View();
+	}
+
+Now what happens when inside your action method, the output is different depending on the user that is logged in, perhaps your `Index` action displays the users name and some specific content to them? That's easy too, just use the `KeyOnUser` property, like this:
+
+    [WiredCache(600, KeyOnUser = true)]
+	public ActionResult Index()
+	{ 
+		return View();
+	}
