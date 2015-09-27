@@ -84,3 +84,13 @@ Now what happens when inside your action method, the output is different dependi
 	{ 
 		return View();
 	}
+
+But typing `KeyOnUser = true` every time is boring right? Wouldn't it be nice if you could set it once somewhere and forget? Easy! Just configure in your `web.config`. First add in a new config section:
+
+    <configSections>
+        <section name="wiredCaching" type="Wired.Caching.Mvc.CachingConfigSection,Wired.Caching.Mvc"/>
+    </configSections>
+
+Then somewhere else in your config, add this:
+
+    <wiredCaching alwaysKeyOnUser="true" />
