@@ -78,6 +78,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+    <None Include="web.config.install.xdt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Wired.Caching\Wired.Caching.csproj">

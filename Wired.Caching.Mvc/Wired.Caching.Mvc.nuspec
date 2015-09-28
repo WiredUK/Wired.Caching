@@ -1,21 +1,24 @@
 <?xml version="1.0"?>
 <package >
-  <metadata>
-    <id>$id$</id>
-    <version>$version$</version>
-    <title>$title$</title>
-    <authors>$author$</authors>
-    <owners>$author$</owners>
-    <iconUrl>http://david.glass/w-logo.png</iconUrl>
-    <licenseUrl>https://github.com/WiredUK/Wired.Caching/blob/master/LICENSE</licenseUrl>
-    <projectUrl>https://wireduk.github.io/Wired.Caching</projectUrl>
-    <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>$description$</description>
-    <releaseNotes>Initial release.</releaseNotes>
-    <copyright>Copyright 2015</copyright>
-    <tags>Caching cache .Net MVC</tags>
-    <dependencies>
-        <dependency id="Wired.Caching" version="1.1" />    
-    </dependencies>
-  </metadata>
+	<metadata>
+		<id>$id$</id>
+		<version>$version$</version>
+		<title>$title$</title>
+		<authors>$author$</authors>
+		<owners>$author$</owners>
+		<iconUrl>http://david.glass/w-logo.png</iconUrl>
+		<licenseUrl>https://github.com/WiredUK/Wired.Caching/blob/master/LICENSE</licenseUrl>
+		<projectUrl>https://wireduk.github.io/Wired.Caching</projectUrl>
+		<requireLicenseAcceptance>true</requireLicenseAcceptance>
+		<description>$description$</description>
+		<releaseNotes>Initial release.</releaseNotes>
+		<copyright>Copyright 2015</copyright>
+		<tags>Caching cache .Net MVC</tags>
+		<dependencies>
+			<dependency id="Wired.Caching" version="1.1" />    
+		</dependencies>
+	</metadata>
+	<files>
+		<file src="web.config.install.xdt" target="content" /> 
+	</files>
 </package>
