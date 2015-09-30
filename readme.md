@@ -104,7 +104,8 @@ But typing `KeyOnUser = true` every time is boring right? Wouldn't it be nice if
 
 ```xml
 <configSections>
-    <section name="wiredCaching" type="Wired.Caching.Mvc.CachingConfigSection,Wired.Caching.Mvc"/>
+    <section name="wiredCaching" 
+             type="Wired.Caching.Mvc.CachingConfigSection,Wired.Caching.Mvc"/>
 </configSections>
 ```
 Then somewhere else in your config, add this:
