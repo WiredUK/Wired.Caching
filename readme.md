@@ -82,7 +82,7 @@ And now that action will not be called more than once every 600 seconds.
 
 Can we get a bit more clever? Sure, what happens if your action has parameters and each variation of parameter has a different output that you want to cache? Simple, just use the `KeyOn` property. Either specify a comma seperated list of parameter names or use `*` to use them all. So lets say you have an action that has a single parameter that you don't care about, just do this:
 
-```
+```c#
 [WiredCache(600, KeyOn = "id")]
 public ActionResult GetProduct(int id, string ignoreThisParameter)
 { 
