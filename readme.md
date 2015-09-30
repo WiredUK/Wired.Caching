@@ -21,33 +21,33 @@ This is a package to simplify caching in your .Net projects. It started as a sim
 
 2. Replace code where you need something cached. For example this:
 
-```c#
-    var zombies = context.People
-        .Where(p => p.IsWalking && p.IsDead)
-        .ToList();
-```
+	```c#
+	    var zombies = context.People
+	        .Where(p => p.IsWalking && p.IsDead)
+	        .ToList();
+	```
 
-    Would be replaced with something like this:
+	Would be replaced with something like this:
 
-```c#
-    var zombies = cacheService.Get(
-        "zombies",
-        () => context.People
-                  .Where(p => p.IsWalking && p.IsDead)
-                  .ToList(),
-        600);
-```
+	```c#
+	    var zombies = cacheService.Get(
+	        "zombies",
+	        () => context.People
+	                  .Where(p => p.IsWalking && p.IsDead)
+	                  .ToList(),
+	        600);
+	```
 
-    Or you can use the slightly shorter lambda syntax:
+	Or you can use the slightly shorter lambda syntax:
 
-```c#
-    var zombies = cacheService.Get(
-        "zombies",
-        context.People
-            .Where(p => p.IsWalking && p.IsDead)
-            .ToList,
-        600);
-```
+	```c#
+	    var zombies = cacheService.Get(
+	        "zombies",
+	        context.People
+	            .Where(p => p.IsWalking && p.IsDead)
+	            .ToList,
+	        600);
+	```
 
 ##Caveat##
 
