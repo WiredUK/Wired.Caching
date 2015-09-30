@@ -15,34 +15,39 @@ This is a package to simplify caching in your .Net projects. It started as a sim
 2. Create an instance of the cache service:
 
 ```c#
-        //This can go anywhere, or preferably be injected
-        var cacheService = new InMemoryCache();
+    //This can go anywhere, or preferably be injected
+    var cacheService = new InMemoryCache();
 ```
 
 2. Replace code where you need something cached. For example this:
 
-        var zombies = context.People
-            .Where(p => p.IsWalking && p.IsDead)
-            .ToList();
+```c#
+    var zombies = context.People
+        .Where(p => p.IsWalking && p.IsDead)
+        .ToList();
+```
 
     Would be replaced with something like this:
 
-        var zombies = cacheService.Get(
-            "zombies",
-            () => context.People
-                      .Where(p => p.IsWalking && p.IsDead)
-                      .ToList(),
-            600);
+```c#
+    var zombies = cacheService.Get(
+        "zombies",
+        () => context.People
+                  .Where(p => p.IsWalking && p.IsDead)
+                  .ToList(),
+        600);
+```
 
     Or you can use the slightly shorter lambda syntax:
 
-        var zombies = cacheService.Get(
-            "zombies",
-            context.People
-                .Where(p => p.IsWalking && p.IsDead)
-                .ToList,
-            600);
-
+```c#
+    var zombies = cacheService.Get(
+        "zombies",
+        context.People
+            .Where(p => p.IsWalking && p.IsDead)
+            .ToList,
+        600);
+```
 
 ##Caveat##
 
@@ -56,43 +61,54 @@ So now you want to use caching in your MVC project? Use this package to simplify
 
 So here is an example (but very boring) action:
 
-	public ActionResult Index()
-	{ 
-		return View();
-	}
+```c#
+public ActionResult Index()
+{ 
+	return View();
+}
+```
 
 So how do we make it cached? Just add the `WiredCache` attribute, like this:
 
-    [WiredCache(600)]
-	public ActionResult Index()
-	{ 
-		return View();
-	}
+```c#
+[WiredCache(600)]
+public ActionResult Index()
+{ 
+	return View();
+}
+```
 
 And now that action will not be called more than once every 600 seconds. 
 
 Can we get a bit more clever? Sure, what happens if your action has parameters and each variation of parameter has a different output that you want to cache? Simple, just use the `KeyOn` property. Either specify a comma seperated list of parameter names or use `*` to use them all. So lets say you have an action that has a single parameter that you don't care about, just do this:
 
-    [WiredCache(600, KeyOn = "id")]
-	public ActionResult GetProduct(int id, string ignoreThisParameter)
-	{ 
-		return View();
-	}
+```
+[WiredCache(600, KeyOn = "id")]
+public ActionResult GetProduct(int id, string ignoreThisParameter)
+{ 
+	return View();
+}
+```
 
 Now what happens when inside your action method, the output is different depending on the user that is logged in, perhaps your `Index` action displays the users name and some specific content to them? That's easy too, just use the `KeyOnUser` property, like this:
 
-    [WiredCache(600, KeyOnUser = true)]
-	public ActionResult Index()
-	{ 
-		return View();
-	}
+```c#
+[WiredCache(600, KeyOnUser = true)]
+public ActionResult Index()
+{ 
+	return View();
+}
+```
 
 But typing `KeyOnUser = true` every time is boring right? Wouldn't it be nice if you could set it once somewhere and forget? Easy! Just configure in your `web.config`. First add in a new config section:
 
-    <configSections>
-        <section name="wiredCaching" type="Wired.Caching.Mvc.CachingConfigSection,Wired.Caching.Mvc"/>
-    </configSections>
-
+```xml
+<configSections>
+    <section name="wiredCaching" type="Wired.Caching.Mvc.CachingConfigSection,Wired.Caching.Mvc"/>
+</configSections>
+```
 Then somewhere else in your config, add this:
 
-    <wiredCaching alwaysKeyOnUser="true" />
+```xml
+<wiredCaching alwaysKeyOnUser="true" />
+```
