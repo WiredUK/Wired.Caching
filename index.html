@@ -41,37 +41,33 @@
 <li>
 <p>Create an instance of the cache service:</p>
 
-<pre><code>//This can go anywhere, or preferably be injected
-var cacheService = new InMemoryCache();
-</code></pre>
+<div class="highlight highlight-source-cs"><pre><span class="pl-c">//This can go anywhere, or preferably be injected</span>
+<span class="pl-k">var</span> cacheService = <span class="pl-k">new</span> InMemoryCache();</pre></div>
 </li>
 <li>
 <p>Replace code where you need something cached. For example this:</p>
 
-<pre><code>var zombies = context.People
+<div class="highlight highlight-source-cs"><pre><span class="pl-k">var</span> zombies = context.People
     .Where(p =&gt; p.IsWalking &amp;&amp; p.IsDead)
-    .ToList();
-</code></pre>
+    .ToList();</pre></div>
 
 <p>Would be replaced with something like this:</p>
 
-<pre><code>var zombies = cacheService.Get(
-    "zombies",
+<div class="highlight highlight-source-cs"><pre><span class="pl-k">var</span> zombies = cacheService.Get(
+    <span class="pl-s"><span class="pl-pds">"</span>zombies<span class="pl-pds">"</span></span>,
     () =&gt; context.People
               .Where(p =&gt; p.IsWalking &amp;&amp; p.IsDead)
               .ToList(),
-    600);
-</code></pre>
+    <span class="pl-c1">600</span>);</pre></div>
 
 <p>Or you can use the slightly shorter lambda syntax:</p>
 
-<pre><code>var zombies = cacheService.Get(
-    "zombies",
+<div class="highlight highlight-source-cs"><pre><span class="pl-k">var</span> zombies = cacheService.Get(
+    <span class="pl-s"><span class="pl-pds">"</span>zombies<span class="pl-pds">"</span></span>,
     context.People
         .Where(p =&gt; p.IsWalking &amp;&amp; p.IsDead)
         .ToList,
-    600);
-</code></pre>
+    <span class="pl-c1">600</span>);</pre></div>
 </li>
 </ol>
 
@@ -90,52 +86,47 @@ var cacheService = new InMemoryCache();
 
 <p>So here is an example (but very boring) action:</p>
 
-<pre><code>public ActionResult Index()
+<div class="highlight highlight-source-cs"><pre><span class="pl-k">public</span> ActionResult Index()
 { 
-    return View();
-}
-</code></pre>
+    <span class="pl-k">return</span> View();
+}</pre></div>
 
 <p>So how do we make it cached? Just add the <code>WiredCache</code> attribute, like this:</p>
 
-<pre><code>[WiredCache(600)]
-public ActionResult Index()
+<div class="highlight highlight-source-cs"><pre>[WiredCache(<span class="pl-c1">600</span>)]
+<span class="pl-k">public</span> ActionResult Index()
 { 
-    return View();
-}
-</code></pre>
+    <span class="pl-k">return</span> View();
+}</pre></div>
 
 <p>And now that action will not be called more than once every 600 seconds. </p>
 
 <p>Can we get a bit more clever? Sure, what happens if your action has parameters and each variation of parameter has a different output that you want to cache? Simple, just use the <code>KeyOn</code> property. Either specify a comma seperated list of parameter names or use <code>*</code> to use them all. So lets say you have an action that has a single parameter that you don't care about, just do this:</p>
 
-<pre><code>[WiredCache(600, KeyOn = "id")]
-public ActionResult GetProduct(int id, string ignoreThisParameter)
+<div class="highlight highlight-source-cs"><pre>[WiredCache(<span class="pl-c1">600</span>, KeyOn = <span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span>)]
+<span class="pl-k">public</span> ActionResult GetProduct(<span class="pl-k">int</span> id, <span class="pl-k">string</span> ignoreThisParameter)
 { 
-    return View();
-}
-</code></pre>
+    <span class="pl-k">return</span> View();
+}</pre></div>
 
 <p>Now what happens when inside your action method, the output is different depending on the user that is logged in, perhaps your <code>Index</code> action displays the users name and some specific content to them? That's easy too, just use the <code>KeyOnUser</code> property, like this:</p>
 
-<pre><code>[WiredCache(600, KeyOnUser = true)]
-public ActionResult Index()
+<div class="highlight highlight-source-cs"><pre>[WiredCache(<span class="pl-c1">600</span>, KeyOnUser = <span class="pl-c1">true</span>)]
+<span class="pl-k">public</span> ActionResult Index()
 { 
-    return View();
-}
-</code></pre>
+    <span class="pl-k">return</span> View();
+}</pre></div>
 
 <p>But typing <code>KeyOnUser = true</code> every time is boring right? Wouldn't it be nice if you could set it once somewhere and forget? Easy! Just configure in your <code>web.config</code>. First add in a new config section:</p>
 
-<pre><code>&lt;configSections&gt;
-    &lt;section name="wiredCaching" type="Wired.Caching.Mvc.CachingConfigSection,Wired.Caching.Mvc"/&gt;
-&lt;/configSections&gt;
-</code></pre>
+<div class="highlight highlight-text-xml"><pre>&lt;<span class="pl-ent">configSections</span>&gt;
+    &lt;<span class="pl-ent">section</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>wiredCaching<span class="pl-pds">"</span></span> 
+             <span class="pl-e">type</span>=<span class="pl-s"><span class="pl-pds">"</span>Wired.Caching.Mvc.CachingConfigSection,Wired.Caching.Mvc<span class="pl-pds">"</span></span>/&gt;
+&lt;/<span class="pl-ent">configSections</span>&gt;</pre></div>
 
 <p>Then somewhere else in your config, add this:</p>
 
-<pre><code>&lt;wiredCaching alwaysKeyOnUser="true" /&gt;
-</code></pre>
+<div class="highlight highlight-text-xml"><pre>&lt;<span class="pl-ent">wiredCaching</span> <span class="pl-e">alwaysKeyOnUser</span>=<span class="pl-s"><span class="pl-pds">"</span>true<span class="pl-pds">"</span></span> /&gt;</pre></div>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/WiredUK/Wired.Caching">Wired.Caching</a> is maintained by <a href="https://github.com/WiredUK">WiredUK</a>.</span>
