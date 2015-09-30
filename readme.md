@@ -14,8 +14,10 @@ This is a package to simplify caching in your .Net projects. It started as a sim
 
 2. Create an instance of the cache service:
 
+```c#
         //This can go anywhere, or preferably be injected
         var cacheService = new InMemoryCache();
+```
 
 2. Replace code where you need something cached. For example this:
 
