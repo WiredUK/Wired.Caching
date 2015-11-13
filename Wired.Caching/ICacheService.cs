@@ -46,5 +46,19 @@ namespace Wired.Caching
         /// </summary>
         /// <param name="key">The key of the item in the cache</param>
         void RemoveFromCache(string key);
+
+        /// <summary>
+        /// Determines if the cache service also retains the cache times, allowing you to
+        /// retrieve the length of time an item is due to remain in the cache.
+        /// </summary>
+        bool RetainCacheDurationDetail { get; set; }
+
+        /// <summary>
+        /// Get information about the cache item. Requires the <see cref="RetainCacheDurationDetail">RetainCacheDurationDetail</see> 
+        /// property to be set to true.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        CacheItemDetail GetCacheItemDetail(string key);
     }
 }

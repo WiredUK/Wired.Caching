@@ -8,7 +8,15 @@ namespace Wired.Caching
     /// </summary>
     public class InMemoryCache : ICacheService
     {
+        private const string CacheKeyDurationSuffix = ":CacheDuration";
+
         private static readonly object SyncObject = new object();
+
+        /// <summary>
+        /// Determines if the cache service also retains the cache times, allowing you to
+        /// retrieve the length of time an item is due to remain in the cache.
+        /// </summary>
+        public bool RetainCacheDurationDetail { get; set; }
 
         /// <summary>
         /// Determines if an item is in the cache by key
@@ -41,10 +49,32 @@ namespace Wired.Caching
                 item = getItemDelegate();
 
                 cache.Add(key, item, DateTime.Now.AddSeconds(duration));
+                if (RetainCacheDurationDetail)
+                {
+                    var cacheDetail = new CacheItemDetail
+                    {
+                        AddedOn = DateTime.Now,
+                        Duration = duration
+                    };
+
+                    cache.Add($"{key}{CacheKeyDurationSuffix}", cacheDetail, DateTime.Now.AddSeconds(duration));
+                }
                 return item;
+
             }
         }
-        
+
+        /// <summary>
+        /// Get information about the cache item. Requires the <see cref="RetainCacheDurationDetail">RetainCacheDurationDetail</see> 
+        /// property to be set to true.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public CacheItemDetail GetCacheItemDetail(string key)
+        {
+            return ReadFromCache<CacheItemDetail>($"{key}{CacheKeyDurationSuffix}");
+        }
+
         /// <summary>
         /// Reads an item from the cache, does not create a new item.
         /// </summary>

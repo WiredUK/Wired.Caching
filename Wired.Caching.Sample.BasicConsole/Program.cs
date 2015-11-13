@@ -13,6 +13,7 @@ namespace Wired.Caching.Sample
             Console.WriteLine();
 
             _cacheService = new InMemoryCache();
+            //_cacheService.RetainCacheDurationDetail = true;
 
             Console.WriteLine("First time, this should be slooooow");
             CacheDemo();
@@ -37,6 +38,13 @@ namespace Wired.Caching.Sample
                 () => GetObjectFromSomewhereSlowly(),
                 600);
 
+            var detail = _cacheService.GetCacheItemDetail("LargeObjectKey");
+
+            if (detail != null)
+            {
+                Console.WriteLine("Item is set to expire on: {0}", detail.ExpiresOn);
+            }
+            
             //Alternative syntax
             //_cacheService.Get(
             //    "LargeObjectKey",
