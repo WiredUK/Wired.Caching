@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>Some minor additional functionality, mainly to support the Wired.Caching.Mvc package.</releaseNotes>
-    <copyright>Copyright 2015</copyright>
+    <copyright>Copyright 2016</copyright>
     <tags>Caching cache .Net MVC</tags>
   </metadata>
 </package>
