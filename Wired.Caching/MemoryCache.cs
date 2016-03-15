@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Linq;
 using System.Runtime.Caching;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Wired.Caching
 {
@@ -8,9 +12,18 @@ namespace Wired.Caching
     /// </summary>
     public class InMemoryCache : ICacheService
     {
+        //Some of the async code was taken from an excellent answer on Stackoverflow
+        //See http://stackoverflow.com/a/36001954/1663001 for more detail
+
         private const string CacheKeyDurationSuffix = ":CacheDuration";
 
         private static readonly object SyncObject = new object();
+
+        private static DateTime _lastPurge = DateTime.MinValue;
+
+        private static readonly TimeSpan MinPurgeFrequency = TimeSpan.FromHours(1);
+        private static readonly SemaphoreSlim PurgeLock = new SemaphoreSlim(1);
+        private static readonly ConcurrentDictionary<string, SemaphoreSlim> Locks = new ConcurrentDictionary<string, SemaphoreSlim>();
 
         /// <summary>
         /// Determines if the cache service also retains the cache times, allowing you to
@@ -49,19 +62,37 @@ namespace Wired.Caching
                 item = getItemDelegate();
 
                 cache.Add(key, item, DateTime.Now.AddSeconds(duration));
-                if (RetainCacheDurationDetail)
-                {
-                    var cacheDetail = new CacheItemDetail
-                    {
-                        AddedOn = DateTime.Now,
-                        Duration = duration
-                    };
+                if (!RetainCacheDurationDetail) return item;
 
-                    cache.Add($"{key}{CacheKeyDurationSuffix}", cacheDetail, DateTime.Now.AddSeconds(duration));
-                }
+                var cacheDetail = new CacheItemDetail
+                {
+                    AddedOn = DateTime.Now,
+                    Duration = duration
+                };
+
+                cache.Add($"{key}{CacheKeyDurationSuffix}", cacheDetail, DateTime.Now.AddSeconds(duration));
                 return item;
 
             }
+        }
+
+        /// <summary>
+        /// Gets an item from the cache or calls the callback and stores the result in the cache.
+        /// This is all done asynchronously.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The key of the item in the cache</param>
+        /// <param name="getItemFactory">Delegate task callback to get the item if needed</param>
+        /// <param name="duration">The duration in seconds to store the item in the cache</param>
+        /// <returns>A task of the cached item or result of the callback if item is not in the cache</returns>
+        public Task<T> GetAsync<T>(string key, Func<Task<T>> getItemFactory, int duration) where T : class
+        {
+            var cache = GetCache();
+            var result = (T)cache.Get(key);
+
+            return result != null ?
+                Task.FromResult(result) :
+                RunFactory(cache, key, getItemFactory, duration);
         }
 
         /// <summary>
@@ -112,13 +143,85 @@ namespace Wired.Caching
             GetCache().Remove(key);
         }
 
+        #region Private methods
         /// <summary>
         /// Internal method to get the correct cache
         /// </summary>
         /// <returns></returns>
-        private static MemoryCache GetCache()
+        private static ObjectCache GetCache()
         {
             return MemoryCache.Default;
         }
+
+        private async Task<T> RunFactory<T>(ObjectCache cache, string key, Func<Task<T>> getItemFactory, int duration) where T : class
+        {
+            await PurgeOldLocks();
+            var cacheLock = Locks.GetOrAdd(key, k => new SemaphoreSlim(1));
+            try
+            {
+                //Wait for anyone currently running the factory.
+                await cacheLock.WaitAsync();
+
+                //Check to see if another factory has already ran while we waited.
+                var oldResult = (T)cache.Get(key);
+                if (oldResult != null)
+                {
+                    return oldResult;
+                }
+
+                //Run the factory then cache the result.
+                var newResult = await getItemFactory();
+                cache.Add(key, newResult, DateTime.Now.AddSeconds(duration));
+
+                if (!RetainCacheDurationDetail) return newResult;
+
+                var cacheDetail = new CacheItemDetail
+                {
+                    AddedOn = DateTime.Now,
+                    Duration = duration
+                };
+
+                cache.Add($"{key}{CacheKeyDurationSuffix}", cacheDetail, DateTime.Now.AddSeconds(duration));
+
+                return newResult;
+            }
+            finally
+            {
+                cacheLock.Release();
+            }
+        }
+
+        private static async Task PurgeOldLocks()
+        {
+            try
+            {
+                //Only one thread can run the purge;
+                await PurgeLock.WaitAsync();
+
+                if ((DateTime.UtcNow - _lastPurge).Duration() > MinPurgeFrequency)
+                {
+                    _lastPurge = DateTime.UtcNow;
+                    var locksSnapshot = Locks.ToList();
+                    foreach (var kvp in locksSnapshot)
+                    {
+                        //Try to take the lock but do not wait for it.
+                        var waited = await kvp.Value.WaitAsync(0);
+                        if (!waited) continue;
+
+                        //We where able to take the lock so remove it from the collection and dispose it.
+                        SemaphoreSlim _;
+                        Locks.TryRemove(kvp.Key, out _);
+                        kvp.Value.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                PurgeLock.Release();
+            }
+        }
+
+        #endregion
+
     }
 }

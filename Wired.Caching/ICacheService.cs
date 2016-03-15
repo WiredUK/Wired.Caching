@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Wired.Caching
 {
@@ -15,7 +16,7 @@ namespace Wired.Caching
         bool IsInCache(string key);
 
         /// <summary>
-        /// Gets an item from cache or calls the callback methos and stores the result in the cache
+        /// Gets an item from cache or calls the callback method and stores the result in the cache
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key">The key of the item in the cache</param>
@@ -23,6 +24,17 @@ namespace Wired.Caching
         /// <param name="duration">The duration in seconds to store the item in the cache</param>
         /// <returns>The cached item or result of the callback if item is not in the cache</returns>
         T Get<T>(string key, Func<T> getItemDelegate, int duration) where T : class;
+
+        /// <summary>
+        /// Gets an item from the cache or calls the callback and stores the result in the cache.
+        /// This is all done asynchronously.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">The key of the item in the cache</param>
+        /// <param name="getItemFactory">Delegate task callback to get the item if needed</param>
+        /// <param name="duration">The duration in seconds to store the item in the cache</param>
+        /// <returns>A task of the cached item or result of the callback if item is not in the cache</returns>
+        Task<T> GetAsync<T>(string key, Func<Task<T>> getItemFactory, int duration) where T : class;
 
         /// <summary>
         /// Reads an item from the cache, does not create a new item.

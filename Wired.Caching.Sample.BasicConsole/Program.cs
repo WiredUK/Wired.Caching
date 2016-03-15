@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
 
-namespace Wired.Caching.Sample
+namespace Wired.Caching.Sample.BasicConsole
 {
     public class Program
     {
@@ -13,13 +14,24 @@ namespace Wired.Caching.Sample
             Console.WriteLine();
 
             _cacheService = new InMemoryCache();
-            //_cacheService.RetainCacheDurationDetail = true;
 
             Console.WriteLine("First time, this should be slooooow");
             CacheDemo();
 
             Console.WriteLine("Second time, this should be fast!");
             CacheDemo();
+
+            Console.WriteLine("Asynchronous Caching demo");
+            Console.WriteLine("============");
+            Console.WriteLine();
+
+            _cacheService = new InMemoryCache();
+
+            Console.WriteLine("First time, this should be slooooow");
+            CacheDemoAsync().Wait();
+
+            Console.WriteLine("Second time, this should be fast!");
+            CacheDemoAsync().Wait();
 
             Console.WriteLine();
             Console.WriteLine("Press any key to exit");
@@ -35,7 +47,7 @@ namespace Wired.Caching.Sample
 
             _cacheService.Get(
                 "LargeObjectKey",
-                () => GetObjectFromSomewhereSlowly(),
+                GetObjectFromSomewhereSlowly,
                 600);
 
             var detail = _cacheService.GetCacheItemDetail("LargeObjectKey");
@@ -44,12 +56,6 @@ namespace Wired.Caching.Sample
             {
                 Console.WriteLine("Item is set to expire on: {0}", detail.ExpiresOn);
             }
-            
-            //Alternative syntax
-            //_cacheService.Get(
-            //    "LargeObjectKey",
-            //    GetObjectFromSomewhereSlowly,
-            //    600);
 
             Console.WriteLine("That took {0} milliseconds to get", stopWatch.ElapsedMilliseconds);
             Console.WriteLine();
@@ -62,5 +68,39 @@ namespace Wired.Caching.Sample
             System.Threading.Thread.Sleep(5000);
             return new SomeLargeObject();
         }
+
+        private static async Task<SomeLargeObject> GetObjectFromSomewhereSlowlyAsync()
+        {
+            //This will take 5 seconds to complete
+            await Task.Delay(5000);
+            return new SomeLargeObject();
+        }
+
+
+        #region Async Demo
+        private static async Task CacheDemoAsync()
+        {
+            Console.Write("Getting item... ");
+
+            var stopWatch = new System.Diagnostics.Stopwatch();
+            stopWatch.Start();
+
+            await _cacheService.GetAsync(
+                "LargeObjectKeyAsync",
+                GetObjectFromSomewhereSlowlyAsync,
+                600);
+
+            var detail = _cacheService.GetCacheItemDetail("LargeObjectKey");
+
+            if (detail != null)
+            {
+                Console.WriteLine("Item is set to expire on: {0}", detail.ExpiresOn);
+            }
+
+            Console.WriteLine("That took {0} milliseconds to get", stopWatch.ElapsedMilliseconds);
+            Console.WriteLine();
+
+        }
+        #endregion
     }
 }
