@@ -11,7 +11,7 @@
     <projectUrl>https://wireduk.github.io/Wired.Caching</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Some minor additional functionality, mainly to support the Wired.Caching.Mvc package.</releaseNotes>
+    <releaseNotes>Added async versions of the cache calls.</releaseNotes>
     <copyright>Copyright 2016</copyright>
     <tags>Caching cache .Net MVC</tags>
   </metadata>
