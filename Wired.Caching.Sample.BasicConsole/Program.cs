@@ -22,7 +22,7 @@ namespace Wired.Caching.Sample.BasicConsole
             CacheDemo();
 
             Console.WriteLine("Asynchronous Caching demo");
-            Console.WriteLine("============");
+            Console.WriteLine("=========================");
             Console.WriteLine();
 
             _cacheService = new InMemoryCache();
@@ -32,6 +32,18 @@ namespace Wired.Caching.Sample.BasicConsole
 
             Console.WriteLine("Second time, this should be fast!");
             CacheDemoAsync().Wait();
+
+            Console.WriteLine("Asynchronous Caching demo with a parameter");
+            Console.WriteLine("==========================================");
+            Console.WriteLine();
+
+            _cacheService = new InMemoryCache();
+
+            Console.WriteLine("First time, this should be slooooow");
+            ParameterisedCacheDemoAsync().Wait();
+
+            Console.WriteLine("Second time, this should be fast!");
+            ParameterisedCacheDemoAsync().Wait();
 
             Console.WriteLine();
             Console.WriteLine("Press any key to exit");
@@ -76,8 +88,14 @@ namespace Wired.Caching.Sample.BasicConsole
             return new SomeLargeObject();
         }
 
+        private static async Task<SomeLargeObject> GetObjectFromSomewhereSlowlyWithParameterAsync(int delay)
+        {
+            //This will take 5 seconds to complete
+            await Task.Delay(delay);
+            return new SomeLargeObject();
+        }
 
-        #region Async Demo
+        #region Async Demos
         private static async Task CacheDemoAsync()
         {
             Console.Write("Getting item... ");
@@ -90,7 +108,32 @@ namespace Wired.Caching.Sample.BasicConsole
                 GetObjectFromSomewhereSlowlyAsync,
                 600);
 
-            var detail = _cacheService.GetCacheItemDetail("LargeObjectKey");
+            var detail = _cacheService.GetCacheItemDetail("LargeObjectKeyAsync");
+
+            if (detail != null)
+            {
+                Console.WriteLine("Item is set to expire on: {0}", detail.ExpiresOn);
+            }
+
+            Console.WriteLine("That took {0} milliseconds to get", stopWatch.ElapsedMilliseconds);
+            Console.WriteLine();
+
+        }
+
+        private static async Task ParameterisedCacheDemoAsync()
+        {
+            Console.Write("Getting item... ");
+
+            var stopWatch = new System.Diagnostics.Stopwatch();
+            stopWatch.Start();
+
+            await _cacheService.GetAsync(
+                "ParameterisedLargeObjectKeyAsync",
+                GetObjectFromSomewhereSlowlyWithParameterAsync,
+                5000,
+                600);
+
+            var detail = _cacheService.GetCacheItemDetail("ParameterisedLargeObjectKeyAsync");
 
             if (detail != null)
             {

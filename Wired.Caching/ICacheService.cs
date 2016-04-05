@@ -37,6 +37,20 @@ namespace Wired.Caching
         Task<T> GetAsync<T>(string key, Func<Task<T>> getItemFactory, int duration) where T : class;
 
         /// <summary>
+        /// Gets an item from the cache or calls the callback and stores the result in the cache.
+        /// This is all done asynchronously.
+        /// </summary>
+        /// <typeparam name="T">The return type</typeparam>
+        /// <typeparam name="TParam">The type of the delegate parameter</typeparam>
+        /// <param name="key">The key of the item in the cache</param>
+        /// <param name="getItemFactory">Delegate task callback to get the item if needed</param>
+        /// <param name="inputParam">The input parameter to the delegate</param>
+        /// <param name="duration">The duration in seconds to store the item in the cache</param>
+        /// <returns>A task of the cached item or result of the callback if item is not in the cache</returns>
+        Task<T> GetAsync<T, TParam>(string key, Func<TParam, Task<T>> getItemFactory, TParam inputParam, int duration)
+            where T : class;
+
+        /// <summary>
         /// Reads an item from the cache, does not create a new item.
         /// </summary>
         /// <typeparam name="T"></typeparam>

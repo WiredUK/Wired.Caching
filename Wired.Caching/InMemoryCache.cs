@@ -44,7 +44,7 @@ namespace Wired.Caching
         /// <summary>
         /// Gets an item from cache or calls the callback method and stores the result in the cache
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The return type</typeparam>
         /// <param name="key">The key of the item in the cache</param>
         /// <param name="getItemDelegate">Delegate callback to get the item if needed</param>
         /// <param name="duration">The duration in seconds to store the item in the cache</param>
@@ -80,7 +80,7 @@ namespace Wired.Caching
         /// Gets an item from the cache or calls the callback and stores the result in the cache.
         /// This is all done asynchronously.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The return type</typeparam>
         /// <param name="key">The key of the item in the cache</param>
         /// <param name="getItemFactory">Delegate task callback to get the item if needed</param>
         /// <param name="duration">The duration in seconds to store the item in the cache</param>
@@ -93,6 +93,27 @@ namespace Wired.Caching
             return result != null ?
                 Task.FromResult(result) :
                 RunFactory(cache, key, getItemFactory, duration);
+        }
+
+        /// <summary>
+        /// Gets an item from the cache or calls the callback and stores the result in the cache.
+        /// This is all done asynchronously.
+        /// </summary>
+        /// <typeparam name="T">The return type</typeparam>
+        /// <typeparam name="TParam">The type of the delegate parameter</typeparam>
+        /// <param name="key">The key of the item in the cache</param>
+        /// <param name="getItemFactory">Delegate task callback to get the item if needed</param>
+        /// <param name="inputParam">The input parameter to the delegate</param>
+        /// <param name="duration">The duration in seconds to store the item in the cache</param>
+        /// <returns>A task of the cached item or result of the callback if item is not in the cache</returns>
+        public Task<T> GetAsync<T, TParam>(string key, Func<TParam, Task<T>> getItemFactory, TParam inputParam, int duration) where T : class
+        {
+            var cache = GetCache();
+            var result = (T)cache.Get(key);
+
+            return result != null ?
+                Task.FromResult(result) :
+                RunFactory(cache, key, getItemFactory, inputParam, duration);
         }
 
         /// <summary>
@@ -109,7 +130,7 @@ namespace Wired.Caching
         /// <summary>
         /// Reads an item from the cache, does not create a new item.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The return type</typeparam>
         /// <param name="key">The key of the item in the cache</param>
         /// <returns>The cached item</returns>
         public T ReadFromCache<T>(string key) where T : class
@@ -171,6 +192,44 @@ namespace Wired.Caching
 
                 //Run the factory then cache the result.
                 var newResult = await getItemFactory();
+                cache.Add(key, newResult, DateTime.Now.AddSeconds(duration));
+
+                if (!RetainCacheDurationDetail) return newResult;
+
+                var cacheDetail = new CacheItemDetail
+                {
+                    AddedOn = DateTime.Now,
+                    Duration = duration
+                };
+
+                cache.Add($"{key}{CacheKeyDurationSuffix}", cacheDetail, DateTime.Now.AddSeconds(duration));
+
+                return newResult;
+            }
+            finally
+            {
+                cacheLock.Release();
+            }
+        }
+
+        private async Task<T> RunFactory<T, TParam>(ObjectCache cache, string key, Func<TParam, Task<T>> getItemFactory, TParam inputParam, int duration) where T : class
+        {
+            await PurgeOldLocks();
+            var cacheLock = Locks.GetOrAdd(key, k => new SemaphoreSlim(1));
+            try
+            {
+                //Wait for anyone currently running the factory.
+                await cacheLock.WaitAsync();
+
+                //Check to see if another factory has already ran while we waited.
+                var oldResult = (T)cache.Get(key);
+                if (oldResult != null)
+                {
+                    return oldResult;
+                }
+
+                //Run the factory then cache the result.
+                var newResult = await getItemFactory(inputParam);
                 cache.Add(key, newResult, DateTime.Now.AddSeconds(duration));
 
                 if (!RetainCacheDurationDetail) return newResult;

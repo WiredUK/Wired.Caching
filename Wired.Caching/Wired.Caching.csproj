@@ -45,12 +45,15 @@
   <ItemGroup>
     <Compile Include="CacheItemDetail.cs" />
     <Compile Include="ICacheService.cs" />
-    <Compile Include="MemoryCache.cs" />
+    <Compile Include="InMemoryCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Wired.Caching.nuspec" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>$(SolutionDir).nuget\nuget.exe pack $(ProjectPath) -OutputDirectory $(ProjectDir)</PostBuildEvent>
+    <PostBuildEvent>$(SolutionDir).nuget\nuget.exe pack $(ProjectPath) -OutputDirectory $(ProjectDir) -p configuration=Release</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
