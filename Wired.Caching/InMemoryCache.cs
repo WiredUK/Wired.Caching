@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Caching;
 using System.Threading;
@@ -161,7 +162,16 @@ namespace Wired.Caching
         /// <param name="key">The key of the item in the cache</param>
         public void RemoveFromCache(string key)
         {
+            var y = GetCache().ToList();
             GetCache().Remove(key);
+        }
+
+        /// <summary>
+        /// Gets the keys of all items in the cache
+        /// </summary>
+        public IEnumerable<string> GetAllKeys()
+        {
+            return GetCache().Select(kvp => kvp.Key);
         }
 
         #region Private methods

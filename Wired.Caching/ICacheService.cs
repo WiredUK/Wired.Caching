@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Wired.Caching
@@ -78,7 +79,7 @@ namespace Wired.Caching
         /// retrieve the length of time an item is due to remain in the cache.
         /// </summary>
         bool RetainCacheDurationDetail { get; set; }
-
+        
         /// <summary>
         /// Get information about the cache item. Requires the <see cref="RetainCacheDurationDetail">RetainCacheDurationDetail</see> 
         /// property to be set to true.
@@ -86,5 +87,10 @@ namespace Wired.Caching
         /// <param name="key"></param>
         /// <returns></returns>
         CacheItemDetail GetCacheItemDetail(string key);
+
+        /// <summary>
+        /// Gets the keys of all items in the cache
+        /// </summary>
+        IEnumerable<string> GetAllKeys();
     }
 }
