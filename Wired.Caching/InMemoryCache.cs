@@ -15,7 +15,7 @@ namespace Wired.Caching
     {
         //Some of the async code was taken from an excellent answer on Stackoverflow
         //See http://stackoverflow.com/a/36001954/1663001 for more detail
-
+        
         private const string CacheKeyDurationSuffix = ":CacheDuration";
 
         private static readonly object SyncObject = new object();
@@ -25,6 +25,24 @@ namespace Wired.Caching
         private static readonly TimeSpan MinPurgeFrequency = TimeSpan.FromHours(1);
         private static readonly SemaphoreSlim PurgeLock = new SemaphoreSlim(1);
         private static readonly ConcurrentDictionary<string, SemaphoreSlim> Locks = new ConcurrentDictionary<string, SemaphoreSlim>();
+
+        private readonly string _cacheName = "";
+
+        /// <summary>
+        /// Default constructor, uses the default object cache
+        /// </summary>
+        public InMemoryCache()
+        {
+        }
+
+        /// <summary>
+        /// Constructor that allows you to create a named cache
+        /// </summary>
+        /// <param name="cacheName">Cache identifier</param>
+        public InMemoryCache(string cacheName)
+        {
+            _cacheName = cacheName;
+        }
 
         /// <summary>
         /// Determines if the cache service also retains the cache times, allowing you to
@@ -173,15 +191,28 @@ namespace Wired.Caching
         {
             return GetCache().Select(kvp => kvp.Key);
         }
-
+        
         #region Private methods
+
+        private ObjectCache _cacheToUse;
+
         /// <summary>
         /// Internal method to get the correct cache
         /// </summary>
         /// <returns></returns>
-        private static ObjectCache GetCache()
+        private ObjectCache GetCache()
         {
-            return MemoryCache.Default;
+            if (string.IsNullOrEmpty(_cacheName))
+            {
+                return MemoryCache.Default;
+            }
+
+            if (_cacheToUse == null)
+            {
+                _cacheToUse = new MemoryCache(_cacheName);
+            }
+            
+            return _cacheToUse;
         }
 
         private async Task<T> RunFactory<T>(ObjectCache cache, string key, Func<Task<T>> getItemFactory, int duration) where T : class
