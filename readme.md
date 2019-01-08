@@ -1,8 +1,8 @@
-#Wired.Caching#
+# Wired.Caching
 
 This is a package to simplify caching in your .Net projects. It started as a simple function but has become useful enough for me to drop into a library of it's own. 
 
-##Usage##
+## Usage
 
 1. Add a reference to this library (duh!) by either:
 
@@ -49,15 +49,15 @@ This is a package to simplify caching in your .Net projects. It started as a sim
         600);
 	```
 
-##Caveat##
+## Caveat
 
 There's always a [catch](http://shouldiblamecaching.com/) right? The main thing you need to be concerned about is when caching something that uses deferred execution. A database context is a good example here, hence why my example ends with `ToList()`. That materialises the query so you are caching the results and not an `IQueryable` interface. If you forget to do that, you will probably end up with errors telling you that your context has gone away or disconnected.
 
-#Wired.Caching.Mvc#
+# Wired.Caching.Mvc
 
 So now you want to use caching in your MVC project? Use this package to simplify that even further. Have you ever wanted to cache the entire return from an Action method? Well now you can by adding a simple attribute.
 
-##Usage##
+## Usage
 
 So here is an example (but very boring) action:
 
